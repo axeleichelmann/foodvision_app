@@ -1,5 +1,6 @@
 import streamlit as st
 import PIL
+from config import logger
 
 import torch
 import torch.nn as nn
@@ -36,6 +37,7 @@ idx_to_label = {i : label for i, label in enumerate(labels)}
 # Display uploaded image 
 uploaded_file = st.file_uploader(label="Upload Image of your Food (Note : Image must be in JPG, JPEG or PNG format)",
                                  type=['jpg','jpeg','png'])
+camera_file = st.camera_input(label="Or take a picture of it")
 if uploaded_file:
     input_image = PIL.Image.open(uploaded_file)
     st.image(input_image, width=500)
@@ -51,13 +53,35 @@ if uploaded_file:
                                         options=["Yes", "No"], index=None)
     if prediction_correct=="Yes":
         st.write(f"Thank you for your feedback!")
-        #logging.info(f"Correct Prediction : Predicted Class = {idx_to_class[pred_class]}")
+        logger.info(f"✅ Correct Prediction : Predicted Class = {idx_to_class[pred_class]}")
     elif prediction_correct=="No":
         correct_label = st.text_input(label="What food does your image actually show?",
                                       value=None)
         if correct_label:
             st.write(f"Thank you for your feedback!")
-            #logging.info(f"Incorrect Prediction : Predicted Class = {idx_to_class[pred_class]}, True Class = {correct_label}")
+            logger.info(f"❌ Incorrect Prediction : Predicted Class = {idx_to_class[pred_class]}, True Class = {correct_label}")
+elif camera_file:
+    input_image = PIL.Image.open(camera_file.get_value())
+    st.image(input_image, width=500)
+
+    # Predict & Display malignant/benign value
+    transformed_image = transform(input_image).unsqueeze(0)
+    pred_probs = model(transformed_image).softmax(dim=1)
+    pred_class = pred_probs.argmax(dim=1).item()
+    st.write(f"Predicted Food : {idx_to_label[pred_class]}")
+
+    # Add option for user to comment on correctness of the prediction
+    prediction_correct = st.selectbox(label="Was this prediction correct?",
+                                        options=["Yes", "No"], index=None)
+    if prediction_correct=="Yes":
+        st.write(f"Thank you for your feedback!")
+        logger.info(f"✅ Correct Prediction : Predicted Class = {idx_to_class[pred_class]}")
+    elif prediction_correct=="No":
+        correct_label = st.text_input(label="What food does your image actually show?",
+                                      value=None)
+        if correct_label:
+            st.write(f"Thank you for your feedback!")
+            logger.info(f"❌ Incorrect Prediction : Predicted Class = {idx_to_class[pred_class]}, True Class = {correct_label}")
     
 
 
