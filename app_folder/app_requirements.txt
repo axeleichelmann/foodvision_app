@@ -1,0 +1,9 @@
+torch
+torchvision
+mlflow
+numpy
+pandas
+matplotlib
+tqdm
+torchinfo
+streamlit
