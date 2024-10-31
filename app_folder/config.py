@@ -1,7 +1,18 @@
 from pathlib import Path
 import logging
 import sys
+import mlflow
 
+
+########  ------------------  MLFlow Configuration  -----------------  #########
+MODEL_REGISTRY = Path("/tmp/mlflow")
+Path(MODEL_REGISTRY).mkdir(parents=True, exist_ok=True)
+MLFLOW_TRACKING_URI = "file://" + str(MODEL_REGISTRY.absolute())
+mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+print (mlflow.get_tracking_uri())
+
+
+########  ------------------  Logging Configuration  -----------------  #########
 LOGS_DIR = Path("logs")
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
